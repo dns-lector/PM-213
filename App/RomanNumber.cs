@@ -40,8 +40,8 @@ namespace App
             "L" => 50,
             "C" => 100,
             "D" => 500,
-            _ => 1000
-            // "M" => 1000,
+            "M" => 1000,
+            _ => throw new ArgumentException($"{nameof(RomanNumber)}::{nameof(DigitValue)}: 'digit' has invalid value '{digit}'")
             // _ => throw new ArgumentException("Invalid Roman digit.")
         };
     }
