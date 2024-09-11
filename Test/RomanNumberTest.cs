@@ -93,7 +93,35 @@ namespace Test
                     + $"testCase: '{testCase.Key}', ex.Message: '{ex.Message}'"
                 );
             }
+
+            String[] exTestCases3 =
+            {
+                "IXC", "IIX", "VIX",
+                "CIIX", "IIIX", "VIIX",
+                "VIXC", "IVIX", "CVIIX",  // XIX+ CIX+ IIX- VIX-
+                "CIXC", "IXCM", "IXXC",
+            };
+            foreach (var testCase in exTestCases3)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumber.Parse(testCase),
+                    $"Parse '{testCase}' must throw FormatException"
+                );
+                Assert.IsTrue(
+                    ex.Message.Contains(nameof(RomanNumber)) &&
+                    ex.Message.Contains(nameof(RomanNumber.Parse)) &&
+                    ex.Message.Contains(
+                        $"invalid sequence: more than 1 less digit before '{testCase[^1]}'"),
+                    $"ex.Message must contain info about origin, cause and data. {ex.Message}"
+                );
+            }
         }
+        /* Д.З. Реалізувати проходження тестів на вміст повідомлення винятку
+         * (особливість - включення до нього цифри, якій передують дві менші
+         *  цифри).
+         * Провести рефакторинг вжитого рішення.
+         * Додати щонайменше два скріншоти - до та після рефакторингу.
+         */
 
         [TestMethod]
         public void DigitValueTest()
@@ -168,6 +196,24 @@ namespace Test
                     $"ToString({testCase.Key}) --> {testCase.Value}"
                 );
             }
+        }
+
+
+        [TestMethod]
+        public void PlusTest()
+        {
+            RomanNumber rn1 = new(1);
+            RomanNumber rn2 = new(2);
+            var rn3 = rn1.Plus(rn2);
+            Assert.IsNotNull(rn3);
+            Assert.IsInstanceOfType(rn3, typeof(RomanNumber), 
+                "Plus result mast have RomanNumber type");
+            Assert.AreNotSame(rn3, rn1, 
+                "Plus result is new instance, neither (v)first, nor second arg");
+            Assert.AreNotSame(rn3, rn2, 
+                "Plus result is new instance, neither first, nor (v)second arg");
+            Assert.AreEqual(rn1.Value + rn2.Value, rn3.Value, 
+                "Plus arithmetic");
         }
     }
 }

@@ -9,13 +9,15 @@ namespace App
     public record RomanNumber(int Value)
     {
         private readonly int _value = Value;  // TODO: Refactoring - exclude
-        public int Value => _value;
+        public int Value { get { return _value; } init => _value = value;  }
 
         public static RomanNumber Parse(String input)
         {
             int value = 0;
             int prevDigit = 0;   // TODO: rename to ~rightDigit
             int pos = input.Length;
+            int maxDigit = 0;
+            bool wasLess = false;
             foreach (char c in input.Reverse())
             {
                 pos -= 1;
@@ -34,6 +36,20 @@ namespace App
                 {
                     throw new FormatException(
                         $"Invalid order '{c}' before '{input[pos + 1]}' in position {pos}");
+                }
+
+                if(digit < maxDigit)   // if current digit is less than max
+                {
+                    if (wasLess)       // if previously was the less digit
+                    {
+                        throw new FormatException(input);
+                    }
+                    wasLess = true;
+                }
+                else
+                {
+                    maxDigit = digit;
+                    wasLess = false;
                 }
 
                 if (digit >= prevDigit)
@@ -61,6 +77,15 @@ namespace App
             "M" => 1000,
             _ => throw new ArgumentException($"{nameof(RomanNumber)}::{nameof(DigitValue)}: 'digit' has invalid value '{digit}'")
         };
+
+        public RomanNumber Plus(RomanNumber other)
+        {
+            return this with { Value = Value + other.Value };
+        }
+        /* Д.З. Скласти тести, що перевіряють роботу методу Plus
+         * з використанням римських записів чисел, наприклад,
+         * IV + VI = X
+         */
 
         public override string? ToString()
         {
