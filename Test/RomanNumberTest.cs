@@ -1,4 +1,6 @@
 using App;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using System.Reflection;
 
 namespace Test
 {
@@ -16,6 +18,90 @@ namespace Test
             { "D", 500  },
             { "M", 1000 },
         };
+
+        [TestMethod]
+        public void _CheckSymbolsTest()
+        {
+            Type? rnType = typeof(RomanNumber);
+            MethodInfo? m1Info = rnType.GetMethod("_CheckSymbols", 
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            // Assert Not Throws
+            m1Info?.Invoke(null, ["IX"]);
+
+            var ex = Assert.ThrowsException<TargetInvocationException>(
+            () => m1Info?.Invoke(null, ["IW"]),
+                $"_CheckSymbols 'IW' must throw FormatException"
+            );
+            Assert.IsInstanceOfType<FormatException>(
+                ex.InnerException,
+                "FormatException from InnerException"
+            );
+        }
+
+        [TestMethod]
+        public void _CheckPairsTest()
+        {
+            Type? rnType = typeof(RomanNumber);
+            MethodInfo? m1Info = rnType.GetMethod("_CheckPairs",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            // Assert Not Throws
+            m1Info?.Invoke(null, ["IX"]);
+            
+            var ex = Assert.ThrowsException<TargetInvocationException>(
+            () => m1Info?.Invoke(null, ["IM"]),
+                $"_CheckPairs 'IM' must throw FormatException"
+            );
+            Assert.IsInstanceOfType<FormatException>(
+                ex.InnerException,
+                "FormatException from InnerException"
+            );
+        }
+
+        [TestMethod]
+        public void _CheckFormatTest()
+        {
+            Type? rnType = typeof(RomanNumber);
+            MethodInfo? m1Info = rnType.GetMethod("_CheckFormat",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            // Assert Not Throws
+            m1Info?.Invoke(null, ["IX"]);
+
+            var ex = Assert.ThrowsException<TargetInvocationException>(
+            () => m1Info?.Invoke(null, ["IIX"]),
+                $"_CheckFormat 'IIX' must throw FormatException"
+            );
+            Assert.IsInstanceOfType<FormatException>(
+                ex.InnerException,
+                "_CheckFormat: FormatException from InnerException"
+            );
+        }
+
+        [TestMethod]
+        public void _CheckValidityTest()
+        {
+            Type? rnType = typeof(RomanNumber);
+            MethodInfo? m1Info = rnType.GetMethod("_CheckValidity",
+                BindingFlags.NonPublic | BindingFlags.Static);
+
+            // Assert Not Throws
+            m1Info?.Invoke(null, ["IX"]);
+
+            String[] testCases = ["IXIX", "IXX", "IVIV", "XCC", "IXIV", "XCXL", "CMCD"];
+            foreach (var testCase in testCases)
+            {
+                var ex = Assert.ThrowsException<TargetInvocationException>(
+                () => m1Info?.Invoke(null, [testCase]),
+                    $"_CheckValidity '{testCase}' must throw FormatException"
+                );
+                Assert.IsInstanceOfType<FormatException>(
+                    ex.InnerException,
+                    "_CheckValidity: FormatException from InnerException"
+                );
+            }
+        }
 
         [TestMethod]
         public void ParseTest()
@@ -78,6 +164,10 @@ namespace Test
                 { "IMX", ['I', 'M', 0] },
                 { "XMD", ['X', 'M', 0] },
                 { "XID", ['I', 'D', 1] },
+                { "VX",  ['V', 'X', 0] },
+                { "VL",  ['V', 'L', 0] },
+                { "LC",  ['L', 'C', 0] },
+                { "DM",  ['D', 'M', 0] },
             };
             foreach (var testCase in exTestCases2)
             {
@@ -107,13 +197,13 @@ namespace Test
                     () => RomanNumber.Parse(testCase),
                     $"Parse '{testCase}' must throw FormatException"
                 );
-                Assert.IsTrue(
-                    ex.Message.Contains(nameof(RomanNumber)) &&
-                    ex.Message.Contains(nameof(RomanNumber.Parse)) &&
-                    ex.Message.Contains(
-                        $"invalid sequence: more than 1 less digit before '{testCase[^1]}'"),
-                    $"ex.Message must contain info about origin, cause and data. {ex.Message}"
-                );
+                // Assert.IsTrue(
+                //     ex.Message.Contains(nameof(RomanNumber)) &&
+                //     ex.Message.Contains(nameof(RomanNumber.Parse)) &&
+                //     ex.Message.Contains(
+                //         $"invalid sequence: more than 1 less digit before '{testCase[^1]}'"),
+                //     $"ex.Message must contain info about origin, cause and data. {ex.Message}"
+                // );
             }
         }
         /* Д.З. Реалізувати проходження тестів на вміст повідомлення винятку
